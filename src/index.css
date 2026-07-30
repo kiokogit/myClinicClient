@@ -1,0 +1,38 @@
+
+@theme {
+  --font-serif: "Fraunces", "Georgia", serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+:root {
+  --color-background: #ffffff;
+  --color-foreground: #221c35;
+  --color-muted: #f6f4fb;
+  --color-muted-foreground: #6e6580;
+  --color-border: #e5e0f0;
+  --color-card: #ffffff;
+
+  --color-primary: #5b2a9d;
+  --color-primary-hover: #4a2280;
+  --color-primary-foreground: #ffffff;
+  --color-primary-tint: #f2edfa;
+
+  --color-ring: #5b2a9d;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}

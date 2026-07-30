@@ -1,4 +1,8 @@
 import { useNavigate } from "react-router-dom";
+import { Card, Avatar, Typography, Button, Space, Tag } from "antd";
+import { UserOutlined, MailOutlined, CalendarOutlined } from "@ant-design/icons";
+
+const { Text } = Typography;
 
 export default function DoctorCard({ doctor }) {
   const navigate = useNavigate();
@@ -7,15 +11,40 @@ export default function DoctorCard({ doctor }) {
     .join(" ");
 
   return (
-    <div style={{ border: "1px solid #ddd", borderRadius: "6px", padding: "12px", marginBottom: "10px" }}>
-      <strong>Dr. {fullName}</strong>
-      <p style={{ margin: "4px 0", fontSize: "0.9em", color: "#555" }}>
-        {doctor.gender ? `${doctor.gender} · ` : ""}
-        {doctor.username}
-      </p>
-      <button onClick={() => navigate(`/patient/book/${doctor.id}`)}>
+    <Card
+      variant="borderless"
+      style={{
+        borderRadius: 12,
+        boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+      }}
+      styles={{ body: { padding: 16 } }}
+    >
+      <Space align="start" style={{ width: "100%", justifyContent: "space-between" }}>
+        <Space align="start">
+          <Avatar size={48} icon={<UserOutlined />} style={{ backgroundColor: "#13c2c2" }} />
+          <Space direction="vertical" size={2}>
+            <Text strong style={{ fontSize: 16 }}>
+              Dr. {fullName}
+            </Text>
+            <Space size={6}>
+              {doctor.gender && <Tag color="cyan">{doctor.gender}</Tag>}
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                <MailOutlined /> {doctor.username}
+              </Text>
+            </Space>
+          </Space>
+        </Space>
+      </Space>
+
+      <Button
+        type="primary"
+        icon={<CalendarOutlined />}
+        block
+        style={{ marginTop: 16, borderRadius: 8 }}
+        onClick={() => navigate(`/patient/book/${doctor.id}`)}
+      >
         Book Appointment
-      </button>
-    </div>
+      </Button>
+    </Card>
   );
 }

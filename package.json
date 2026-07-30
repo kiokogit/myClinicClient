@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "antd": "^6.5.2",
     "axios": "^1.7.0",
     "jwt-decode": "^4.0.0",
     "moment": "^2.30.1",

@@ -34,8 +34,8 @@ export default function RescheduleModal({ booking, onClose, onDone }) {
       await rescheduleBooking(booking.id, { start_time: `${date} ${selected}`, remarks });
       onDone();
       onClose();
-    } catch {
-      setError("Reschedule failed. That slot may already be taken.");
+    } catch (e) {
+      setError(e.response.data.details);
       setSubmitting(false);
     }
   }

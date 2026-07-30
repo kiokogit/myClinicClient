@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { Table, Button, Space, Empty } from "antd";
+import { EditOutlined, CloseOutlined } from "@ant-design/icons";
 import StatusBadge from "./StatusBadge";
 import RescheduleModal from "./RescheduleModal";
 import { cancelBooking } from "../api/bookings";
-import moment from 'moment'
+import moment from "moment";
 
 function formatDoctorName(doctor) {
   if (!doctor) return "Unknown doctor";
@@ -25,6 +27,7 @@ const FINAL_STATUSES = ["CANCELLED", "EXPIRED", "COMPLETED"];
 export default function BookingsTable({ bookings, doctorsById, onChanged }) {
   const [reschedulingBooking, setReschedulingBooking] = useState(null);
   const [cancellingId, setCancellingId] = useState(null);
+  const [error, setError] = useState("")
 
   async function handleCancel(booking) {
     const remarks = window.prompt("Reason for cancelling (optional):", "") || "";
@@ -32,61 +35,77 @@ export default function BookingsTable({ bookings, doctorsById, onChanged }) {
     try {
       await cancelBooking(booking.id, remarks);
       onChanged();
-    } catch {
-      window.alert("Could not cancel this appointment. Please try again.");
+    } catch (e) {
+      setError(e.response.data.details)
     } finally {
       setCancellingId(null);
     }
   }
 
-  if (!bookings.length) return <p>No bookings yet.</p>;
+  const columns = [
+    {
+      title: "Doctor",
+      dataIndex: "doctor",
+      key: "doctor",
+      render: (_, booking) => formatDoctorName(doctorsById?.[booking.doctor] ?? booking.doctor),
+    },
+    {
+      title: "Date & Time",
+      dataIndex: "start_time",
+      key: "start_time",
+      render: (startTime) => formatDateTime(startTime),
+    },
+    {
+      title: "Time to",
+      dataIndex: "start_time",
+      key: "time_to",
+      render: (startTime) => moment(startTime).fromNow(),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => <StatusBadge status={status} />,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, booking) => {
+        if (FINAL_STATUSES.includes(booking.status)) return null;
+        return (
+          <Space>
+            <Button
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => setReschedulingBooking(booking)}
+            >
+              Reschedule
+            </Button>
+            <Button
+              size="small"
+              danger
+              icon={<CloseOutlined />}
+              loading={cancellingId === booking.id}
+              onClick={() => handleCancel(booking)}
+            >
+              Cancel
+            </Button>
+          </Space>
+        );
+      },
+    },
+  ];
 
   return (
     <>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={{ textAlign: "left", borderBottom: "2px solid #ccc" }}>
-            <th>Doctor</th>
-            <th>Date & Time</th>
-            <th>Time to</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bookings.map((b) => {
-            const isFinal = FINAL_STATUSES.includes(b.status);
-            return (
-              <tr key={b.id} style={{ borderBottom: "1px solid #eee" }}>
-                <td>{formatDoctorName(b.doctor)}</td>
-                <td>{formatDateTime(b.start_time)}</td>
-                <td>{moment(b.start_time).fromNow()}</td>
-                <td>
-                  <StatusBadge status={b.status} />
-                </td>
-                <td>
-                  {!isFinal && (
-                    <>
-                      <button
-                        onClick={() => setReschedulingBooking(b)}
-                        style={{ marginRight: "6px" }}
-                      >
-                        Reschedule
-                      </button>
-                      <button
-                        onClick={() => handleCancel(b)}
-                        disabled={cancellingId === b.id}
-                      >
-                        {cancellingId === b.id ? "Cancelling..." : "Cancel"}
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 20 }} />}
+      <Table
+        rowKey="id"
+        dataSource={bookings}
+        columns={columns}
+        pagination={false}
+        locale={{ emptyText: <Empty description="No bookings yet." /> }}
+      />
 
       {reschedulingBooking && (
         <RescheduleModal

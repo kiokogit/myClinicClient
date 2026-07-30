@@ -6,6 +6,21 @@ import { getMyProfile } from "../api/users";
 import DoctorCard from "../components/DoctorCard";
 import BookingsTable from "../components/BookingsTable";
 import UserInfoCard from "../components/UserInfoCard";
+import {
+  Layout,
+  Typography,
+  Button,
+  Alert,
+  Spin,
+  Row,
+  Col,
+  Divider,
+  Space,
+} from "antd";
+import { LogoutOutlined, MedicineBoxOutlined } from "@ant-design/icons";
+
+const { Header, Content } = Layout;
+const { Title } = Typography;
 
 export default function PatientDashboard() {
   const { logout } = useAuth();
@@ -47,35 +62,68 @@ export default function PatientDashboard() {
   // Map of doctor id -> doctor object, used to resolve names in the bookings table
   const doctorsById = Object.fromEntries(doctors.map((d) => [d.id, d]));
 
-  if (loading) return <p>Loading dashboard...</p>;
+  if (loading) {
+    return (
+      <Layout style={{ minHeight: "100vh", alignItems: "center", justifyContent: "center" }}>
+        <Spin size="large" tip="Loading dashboard..." />
+      </Layout>
+    );
+  }
 
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "16px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2>Patient Dashboard</h2>
-        <button onClick={logout}>Logout</button>
-      </div>
+    <Layout style={{ minHeight: "100vh", background: "#f5f7fa" }}>
+      <Header
+        style={{
+          background: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 24px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+        }}
+      >
+        <Space align="center">
+          <MedicineBoxOutlined style={{ fontSize: 22, color: "#13c2c2" }} />
+          <Title level={4} style={{ margin: 0 }}>
+            Patient Dashboard
+          </Title>
+        </Space>
+        <Button icon={<LogoutOutlined />} onClick={logout}>
+          Logout
+        </Button>
+      </Header>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <Content style={{ maxWidth: 900, margin: "0 auto", width: "100%", padding: "24px" }}>
+        {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 24 }} />}
 
-      <section style={{ marginTop: "24px" }}>
-        <h3>My Info</h3>
-        <UserInfoCard profile={profile} />
-      </section>
+        <section>
+          <Title level={5}>My Info</Title>
+          <UserInfoCard profile={profile} />
+        </section>
+        <Divider />
 
 
-      <section style={{ marginTop: "24px" }}>
-        <h3>My Bookings</h3>
-        <BookingsTable bookings={bookings} doctorsById={doctorsById} onChanged={refreshBookings} />
-      </section>
+        <section>
+          <Title level={5}>Doctors</Title>
+          <Row gutter={[16, 16]}>
+            {doctors.map((doctor) => (
+              <Col key={doctor.id} xs={24} sm={12}>
+                <DoctorCard doctor={doctor} />
+              </Col>
+            ))}
+          </Row>
+        </section>
 
-      <section style={{ marginTop: "24px" }}>
-        <h3>Doctors</h3>
-        {doctors.map((doctor) => (
-          <DoctorCard key={doctor.id} doctor={doctor} />
-        ))}
-      </section>
+        <Divider />
 
-    </div>
+        <section>
+          <Title level={5}>My Bookings</Title>
+          <BookingsTable bookings={bookings} doctorsById={doctorsById} onChanged={refreshBookings} />
+        </section>
+
+
+        
+      </Content>
+    </Layout>
   );
 }
