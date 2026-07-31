@@ -30,7 +30,7 @@ export default function BookingsTable({ bookings, doctorsById, onChanged }) {
   const [error, setError] = useState("")
 
   async function handleCancel(booking) {
-    const remarks = window.prompt("Reason for cancelling (optional):", "") || "";
+    const remarks = window.prompt("Reason for cancelling:", "") || "";
     setCancellingId(booking.id);
     try {
       await cancelBooking(booking.id, remarks);

@@ -125,7 +125,7 @@ export default function BookAppointment() {
                 </Space>
 
                 <TextArea
-                  placeholder="Remarks (optional)"
+                  placeholder="Remarks"
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   rows={3}
